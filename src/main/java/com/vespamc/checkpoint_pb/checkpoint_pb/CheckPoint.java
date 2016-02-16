@@ -15,7 +15,7 @@ public class CheckPoint extends JavaPlugin {
 		getConfig().options().copyDefaults(true);
 		saveConfig();
 	}
-
+	
 	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender s, Command cmd, String lbl, String[] args) {
@@ -42,6 +42,7 @@ public class CheckPoint extends JavaPlugin {
 					setCP(p, p.getLocation());
 
 					p.sendMessage(msg("&aSuccessfully set your checkpoint!"));
+					
 				} else {
 					if (args.length == 2) {
 						if (!p.hasPermission("checkpoint.set.others")) {
