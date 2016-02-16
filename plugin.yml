@@ -1,0 +1,21 @@
+name: CheckPoint
+main: com.vespamc.checkpoint-pb.checkpoint-pb.CheckPoint
+version: 1.0
+description: Sets a checkpoint for the player.
+author: Yupie
+website: http://www.vespamc.com/
+commands:
+    checkpoint:
+      description: Main command.
+    cp:
+      description: Alias command.
+
+permissions:
+    checkpoint.set:
+      description: Used for setting a checkpoint
+    checkpoint.set.others:
+      description: Used for setting a checkpoint for other people
+    checkpoint.go:
+      description: Used for going back to a checkpoint
+    checkpoint.tp:
+      description: Used for teleporting someone to a checkpoint
