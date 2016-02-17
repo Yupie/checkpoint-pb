@@ -1,5 +1,7 @@
 package com.vespamc.checkpoint_pb.checkpoint_pb;
 
+import java.util.UUID;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -15,7 +17,7 @@ public class CheckPoint extends JavaPlugin {
 		getConfig().options().copyDefaults(true);
 		saveConfig();
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender s, Command cmd, String lbl, String[] args) {
@@ -39,17 +41,16 @@ public class CheckPoint extends JavaPlugin {
 						p.sendMessage(msg("&cYou do not have enough permissions to do this!"));
 						return false;
 					}
-					setCP(p, p.getLocation());
+					setCP(p.getUniqueId(), p.getLocation());
 
 					p.sendMessage(msg("&aSuccessfully set your checkpoint!"));
-					
 				} else {
 					if (args.length == 2) {
 						if (!p.hasPermission("checkpoint.set.others")) {
 							p.sendMessage(msg("&cYou do not have permission to do this!"));
 							return false;
 						}
-						setCP(getServer().getOfflinePlayer(args[1]), p.getLocation());
+						setCP(getServer().getOfflinePlayer(args[1]).getUniqueId(), p.getLocation());
 						p.sendMessage(
 								msg("&aSuccessfully set the checkpoint of " + args[1] + " to your current location"));
 
@@ -61,11 +62,11 @@ public class CheckPoint extends JavaPlugin {
 					p.sendMessage(msg("&cYou do not have enough permissions to do this!"));
 					return false;
 				}
-				if (getCP(p) == null) {
+				if (getCP(p.getUniqueId()) == null) {
 					p.sendMessage(msg("&cYou do not have a checkpoint!"));
 					return false;
 				}
-				p.teleport(getCP(p));
+				p.teleport(getCP(p.getUniqueId()));
 				p.sendMessage(msg("&aTaking you to your last checkpoint!"));
 			} else if (args[0].equalsIgnoreCase("tp")) {
 				if (!p.hasPermission("checkpoint.tp")) {
@@ -87,12 +88,12 @@ public class CheckPoint extends JavaPlugin {
 
 				Player player = getServer().getPlayer(args[1]);
 
-				if (getCP(otarget) == null) {
+				if (getCP(otarget.getUniqueId()) == null) {
 					p.sendMessage(msg("&cThat player doesn't have a checkpoint!"));
 					return false;
 				}
 
-				player.teleport(getCP(otarget));
+				player.teleport(getCP(otarget.getUniqueId()));
 
 				p.sendMessage(msg("&aTeleported " + args[1] + " to the checkpoint of " + args[2]));
 			}
@@ -101,62 +102,31 @@ public class CheckPoint extends JavaPlugin {
 		return false;
 	}
 
-	public void setCP(Player p, Location loc) {
+	public void setCP(UUID id, Location loc) {
 		double x = loc.getX(), y = loc.getY(), z = loc.getZ();
 		float pitch = loc.getPitch(), yaw = loc.getYaw();
 		String world = loc.getWorld().getName();
 
-		getConfig().set(p.getUniqueId().toString() + ".x", x);
-		getConfig().set(p.getUniqueId().toString() + ".y", y);
-		getConfig().set(p.getUniqueId().toString() + ".z", z);
-		getConfig().set(p.getUniqueId().toString() + ".world", world);
-		getConfig().set(p.getUniqueId().toString() + ".pitch", pitch);
-		getConfig().set(p.getUniqueId().toString() + ".yaw", yaw);
+		getConfig().set(id.toString() + ".x", x);
+		getConfig().set(id.toString() + ".y", y);
+		getConfig().set(id.toString() + ".z", z);
+		getConfig().set(id.toString() + ".world", world);
+		getConfig().set(id.toString() + ".pitch", pitch);
+		getConfig().set(id.toString() + ".yaw", yaw);
 
 		saveConfig();
 
 	}
 
-	public void setCP(OfflinePlayer p, Location loc) {
-		double x = loc.getX(), y = loc.getY(), z = loc.getZ();
-		float pitch = loc.getPitch(), yaw = loc.getYaw();
-		String world = loc.getWorld().getName();
-
-		getConfig().set(p.getUniqueId().toString() + ".x", x);
-		getConfig().set(p.getUniqueId().toString() + ".y", y);
-		getConfig().set(p.getUniqueId().toString() + ".z", z);
-		getConfig().set(p.getUniqueId().toString() + ".world", world);
-		getConfig().set(p.getUniqueId().toString() + ".pitch", pitch);
-		getConfig().set(p.getUniqueId().toString() + ".yaw", yaw);
-
-		saveConfig();
-
-	}
-
-	public Location getCP(Player p) {
-		if (!getConfig().contains(p.getUniqueId().toString())) {
+	public Location getCP(UUID id) {
+		if (!getConfig().contains(id.toString())) {
 			return null;
 		}
 
-		return new Location(getServer().getWorld(getConfig().getString(p.getUniqueId().toString() + ".world")),
-				getConfig().getDouble(p.getUniqueId().toString() + ".x"),
-				getConfig().getDouble(p.getUniqueId().toString() + ".y"),
-				getConfig().getDouble(p.getUniqueId().toString() + ".z"),
-				(float) getConfig().getDouble(p.getUniqueId().toString() + ".yaw"),
-				(float) getConfig().getDouble(p.getUniqueId().toString() + ".pitch"));
-	}
-
-	public Location getCP(OfflinePlayer p) {
-		if (!getConfig().contains(p.getUniqueId().toString())) {
-			return null;
-		}
-
-		return new Location(getServer().getWorld(getConfig().getString(p.getUniqueId().toString() + ".world")),
-				getConfig().getDouble(p.getUniqueId().toString() + ".x"),
-				getConfig().getDouble(p.getUniqueId().toString() + ".y"),
-				getConfig().getDouble(p.getUniqueId().toString() + ".z"),
-				(float) getConfig().getDouble(p.getUniqueId().toString() + ".yaw"),
-				(float) getConfig().getDouble(p.getUniqueId().toString() + ".pitch"));
+		return new Location(getServer().getWorld(getConfig().getString(id.toString() + ".world")),
+				getConfig().getDouble(id.toString() + ".x"), getConfig().getDouble(id.toString() + ".y"),
+				getConfig().getDouble(id.toString() + ".z"), (float) getConfig().getDouble(id.toString() + ".yaw"),
+				(float) getConfig().getDouble(id.toString() + ".pitch"));
 	}
 
 	private String msg(String str) {
